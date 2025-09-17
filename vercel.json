@@ -1,5 +1,5 @@
-
 {
+  "version": 2,
   "builds": [
     {
       "src": "flashcards.py",
@@ -9,7 +9,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "flashcards.py"
+      "dest": "/flashcards.py"
     }
   ]
 }
