@@ -308,6 +308,13 @@ button:active {
     Use arrow keys to navigate, spacebar to flip cards
   </p>
   <button id="start-btn">Start Session</button>
+  <script>
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && document.getElementById("welcome").style.display !== "none") {
+        document.getElementById("start-btn").click();
+      }
+    });
+  </script>
 </div>
 
 <div id="card-container">
