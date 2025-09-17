@@ -75,8 +75,8 @@
     <script>
         // This JavaScript function runs when you click the "Flip Card" button
         function flipCard() {
-            // It finds the definition element and makes it visible
-            document.querySelector('.definition').style.display = 'block';
+            const def = document.querySelector('.definition');
+            def.style.display = def.style.display === 'block' ? 'none' : 'block';
         }
     </script>
 </body>
