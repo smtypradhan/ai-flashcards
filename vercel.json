@@ -3,7 +3,7 @@
 {
   "builds": [
     {
-      "src": "app.py",
+      "src": "flashcards.py",
       "use": "@vercel/python"
     }
   ],
