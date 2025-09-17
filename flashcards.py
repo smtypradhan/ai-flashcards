@@ -54,14 +54,16 @@ ai_flashcards = {
 # Convert the dictionary to a list of (term, definition) items
 cards_list = list(ai_flashcards.items())
 
-# This is the main page of your website
-@app.route('/')
-def home():
-    # Pick one random card from the list
-    term, definition = random.choice(cards_list)
-    
-    # Send that card's data to the HTML file
-    return render_template('index.html', term=term, definition=definition)
+@app.route("/")
+def index():
+    cards = list(ai_flashcards.items())
+    random.shuffle(cards)
+    return render_template(
+        "index.html",
+        cards=cards,
+        deck_size=len(cards)  # 👈 add this line
+    )
+
 
 # This line is needed for Vercel to run the app
 if __name__ == "__main__":
