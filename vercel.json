@@ -1,4 +1,3 @@
-#This is the configuration file Vercel needs to understand that you have a Python web app.
 
 {
   "builds": [
