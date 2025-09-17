@@ -1,156 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Flashcard Study Tool</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #e0e0e0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Flashcard Study Tool</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
 
-    #welcome {
-      text-align: center;
-    }
+  #welcome {
+    text-align: center;
+  }
 
-    #card-container {
-      width: 600px;
-      perspective: 1000px;
-    }
+  #card-container {
+    width: 650px;
+    perspective: 1000px;
+  }
 
-    .card {
-      background-color: #ffffff;
-      border-radius: 20px;
-      padding: 40px;
-      margin: 20px 0;
-      min-height: 300px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      display: none;
-      position: relative;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-      font-size: 1.3rem;
-      line-height: 1.6rem;
-    }
+  .card {
+    width: 100%;
+    height: 350px;
+    margin: 20px 0;
+    position: relative;
+    cursor: pointer;
+    perspective: 1000px;
+    display: none;
+  }
 
-    .term {
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+  }
 
-    .definition {
-      display: none;
-      font-weight: normal;
-    }
+  .card.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
 
-    button {
-      margin: 15px 10px;
-      padding: 12px 25px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
+  .card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    font-size: 1.3rem;
+    line-height: 1.6rem;
+    background-color: #ffffff;
+  }
 
-    #show-btn { background-color: #1976d2; color: white; }
-    .yes-btn { background-color: #388e3c; color: white; }
-    .no-btn { background-color: #d32f2f; color: white; }
-    #start-btn, #restart-btn { background-color: #1976d2; color: white; }
+  .card-front .term {
+    font-weight: bold;
+  }
 
-    .progress {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-      font-size: 0.9rem;
-      color: #555;
-    }
-  </style>
+  .card-back {
+    transform: rotateY(180deg);
+    font-weight: normal;
+  }
+
+  button {
+    margin: 15px 10px;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+
+  #start-btn, #restart-btn { background-color: #1976d2; color: white; }
+  .yes-btn { background-color: #388e3c; color: white; }
+  .no-btn { background-color: #d32f2f; color: white; }
+
+  .progress {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  #result { text-align: center; }
+</style>
 </head>
 <body>
-  <div id="welcome">
-    <h1>AI Flashcard Study Tool</h1>
-    <p>There are {{ deck_size }} cards in this deck.</p>
-    <button id="start-btn">Start Session</button>
-  </div>
 
-  <div id="card-container">
-    {% for term, definition in cards %}
-      <div class="card">
-        <div class="progress"></div>
+<div id="welcome">
+  <h1>AI Flashcard Study Tool</h1>
+  <p>There are {{ deck_size }} cards in this deck.</p>
+  <button id="start-btn">Start Session</button>
+</div>
+
+<div id="card-container">
+  {% for term, definition in cards %}
+  <div class="card">
+    <div class="progress"></div>
+    <div class="card-inner">
+      <div class="card-front">
         <div class="term">{{ term }}</div>
-        <div class="definition">{{ definition }}</div>
-        <button id="show-btn" onclick="flipCard(this)">Show Definition</button>
-        <div class="actions" style="display:none;">
-          <button class="yes-btn" onclick="markAnswer(this, true)">Got it</button>
-          <button class="no-btn" onclick="markAnswer(this, false)">Missed</button>
-        </div>
       </div>
-    {% endfor %}
+      <div class="card-back">
+        <div class="definition">{{ definition }}</div>
+      </div>
+    </div>
+    <div class="actions" style="display:none; text-align:center;">
+      <button class="yes-btn" onclick="markAnswer(this, true)">Got it</button>
+      <button class="no-btn" onclick="markAnswer(this, false)">Missed</button>
+    </div>
   </div>
+  {% endfor %}
+</div>
 
-  <div id="result" style="display:none; text-align:center;">
-    <h2>Session Complete</h2>
-    <p id="score"></p>
-    <button id="restart-btn" onclick="restart()">Play Again</button>
-  </div>
+<div id="result" style="display:none;">
+  <h2>Session Complete</h2>
+  <p id="score"></p>
+  <button id="restart-btn" onclick="restart()">Play Again</button>
+</div>
 
-  <!-- Flip sound -->
-  <audio id="flip-sound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+<!-- Flip sound -->
+<audio id="flip-sound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
 
-  <script>
-    let current = 0;
-    let score = 0;
-    const cards = document.querySelectorAll(".card");
-    const welcome = document.getElementById("welcome");
-    const result = document.getElementById("result");
-    const flipSound = document.getElementById("flip-sound");
+<script>
+let current = 0;
+let score = 0;
+const cards = document.querySelectorAll(".card");
+const welcome = document.getElementById("welcome");
+const result = document.getElementById("result");
+const flipSound = document.getElementById("flip-sound");
 
-    document.getElementById("start-btn").onclick = () => {
-      welcome.style.display = "none";
-      showCard(current);
-    };
+document.getElementById("start-btn").onclick = () => {
+  welcome.style.display = "none";
+  showCard(current);
+};
 
-    function showCard(index) {
-      const card = cards[index];
-      card.style.display = "block";
-      card.querySelector(".progress").innerText = `Card ${index + 1} of ${cards.length}`;
-    }
+function showCard(index) {
+  const card = cards[index];
+  card.style.display = "block";
+  card.querySelector(".progress").innerText = `Card ${index + 1} of ${cards.length}`;
+}
 
-    function flipCard(btn) {
-      const card = btn.parentElement;
-      flipSound.play(); // play sound
-      card.querySelector(".term").style.display = "none"; // hide term
-      const def = card.querySelector(".definition");
-      def.style.display = "block"; // show definition
-      btn.style.display = "none"; 
-      card.querySelector(".actions").style.display = "block";
-    }
+function flipCard(card) {
+  flipSound.play();
+  card.classList.add("flipped");
+  card.querySelector(".actions").style.display = "block";
+}
 
-    function markAnswer(btn, correct) {
-      if (correct) score++;
-      cards[current].style.display = "none";
-      current++;
-      if (current < cards.length) {
-        showCard(current);
-      } else {
-        showResult();
-      }
-    }
+cards.forEach(card => {
+  card.querySelector(".card-front").addEventListener("click", () => flipCard(card));
+});
 
-    function showResult() {
-      result.style.display = "block";
-      document.getElementById("score").innerText = `Your score: ${score} / ${cards.length}\nDeck size: ${cards.length}`;
-    }
+function markAnswer(btn, correct) {
+  if (correct) score++;
+  const card = cards[current];
+  card.style.display = "none";
+  current++;
+  if (current < cards.length) {
+    showCard(current);
+  } else {
+    showResult();
+  }
+}
 
-    function restart() {
-      window.location.reload();
-    }
-  </script>
+function showResult() {
+  result.style.display = "block";
+  document.getElementById("score").innerText = `Your score: ${score} / ${cards.length}\nDeck size: ${cards.length}`;
+}
+
+function restart() {
+  window.location.reload();
+}
+</script>
+
 </body>
 </html>
