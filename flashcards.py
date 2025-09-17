@@ -1,13 +1,13 @@
 from flask import Flask, render_template
-import random, time
+import random
 
-# This creates the web app
+# Create the Flask app
 app = Flask(__name__)
 
 # -----------------------------------------------------------------
 # FLASHCARD DECK
 # -----------------------------------------------------------------
-# ai_flashcards = {
+ai_flashcards = {
     "What is Artificial Intelligence (AI)?": "The development of computer systems that can perform tasks typically requiring human intelligence, such as visual perception, speech recognition, decision-making, and translation.",
     "When and where was the term 'AI' coined?": "At Dartmouth College in 1956.",
     "Who is considered the 'father of AI' and what was his definition?": "John McCarthy. He defined AI as 'The science and engineering of making intelligent machines, especially intelligent computer programs'.",

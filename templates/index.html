@@ -1,83 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Flashcard Study Tool</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: grid;
-            place-items: center;
-            min-height: 90vh;
-            background-color: #f4f7f6;
-            color: #333;
-        }
-        .container {
-            text-align: center;
-        }
-        .card {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 12px;
-            width: 500px;
-            height: 300px;
-            padding: 25px;
-            margin: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .term {
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-        .definition {
-            font-size: 1.2rem;
-            color: #555;
-            margin-top: 15px;
-            display: none; /* Hide the definition by default */
-        }
-        button {
-            font-size: 1rem;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 5px;
-            transition: background-color 0.2s;
-        }
-        #flip-btn {
-            background-color: #007aff;
-            color: white;
-        }
-        #next-btn {
-            background-color: #e5e5e5;
-            color: #333;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Flashcard Study Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      background: #f4f7f6;
+      margin: 0;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      width: 500px;
+      min-height: 220px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      display: none;
+      position: relative;
+    }
+    .term { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
+    .definition { font-size: 1.2rem; margin-top: 15px; display: none; }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #show-btn { background: #007aff; color: white; }
+    .yes-btn { background: #4caf50; color: white; }
+    .no-btn { background: #f44336; color: white; }
+    #start-btn, #restart-btn { background: #007aff; color: white; }
+    .progress {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🤖 AI Flashcard 🤖</h1>
-        <div class="card">
-            <div class="term">{{ term }}</div>
+  <div id="welcome">
+    <h1>🤖 AI Flashcard Study Tool 🤖</h1>
+    <p>There are {{ deck_size }} cards in this deck.</p>
+    <button id="start-btn">Start Session</button>
+  </div>
 
-            <div class="definition">{{ definition }}</div>
+  <div id="card-container">
+    {% for term, definition in cards %}
+      <div class="card">
+        <div class="progress"></div>
+        <div class="term">{{ term }}</div>
+        <div class="definition">{{ definition }}</div>
+        <button id="show-btn" onclick="showDefinition(this)">Show Answer</button>
+        <div class="actions" style="display:none;">
+          <button class="yes-btn" onclick="markAnswer(this, true)">Got it ✅</button>
+          <button class="no-btn" onclick="markAnswer(this, false)">Missed it ❌</button>
         </div>
-        
-        <button id="flip-btn" onclick="flipCard()">Flip Card</button>
-        
-        <button id="next-btn" onclick="window.location.reload()">Next Card</button>
-    </div>
+      </div>
+    {% endfor %}
+  </div>
 
-    <script>
-        // This JavaScript function runs when you click the "Flip Card" button
-        function flipCard() {
-            // It finds the definition element and makes it visible
-            document.querySelector('.definition').style.display = 'block';
-        }
-    </script>
+  <div id="result" style="display:none; text-align:center;">
+    <h2>🎉 Session Complete 🎉</h2>
+    <p id="score"></p>
+    <button id="restart-btn" onclick="restart()">Play Again</button>
+  </div>
+
+  <script>
+    let current = 0;
+    let score = 0;
+    const cards = document.querySelectorAll(".card");
+    const welcome = document.getElementById("welcome");
+    const result = document.getElementById("result");
+
+    document.getElementById("start-btn").onclick = () => {
+      welcome.style.display = "none";
+      showCard(current);
+    };
+
+    function showCard(index) {
+      const card = cards[index];
+      card.style.display = "block";
+      card.querySelector(".progress").innerText = `Card ${index + 1} of ${cards.length}`;
+    }
+
+    function showDefinition(btn) {
+      const card = btn.parentElement;
+      card.querySelector(".definition").style.display = "block";
+      btn.style.display = "none";
+      card.querySelector(".actions").style.display = "block";
+    }
+
+    function markAnswer(btn, correct) {
+      if (correct) score++;
+      cards[current].style.display = "none";
+      current++;
+      if (current < cards.length) {
+        showCard(current);
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      result.style.display = "block";
+      document.getElementById("score").innerText = `Your score: ${score} / ${cards.length}`;
+    }
+
+    function restart() {
+      window.location.reload();
+    }
+  </script>
 </body>
 </html>
