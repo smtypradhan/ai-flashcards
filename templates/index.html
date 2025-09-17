@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Flashcard Study Tool</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: grid;
+            place-items: center;
+            min-height: 90vh;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            text-align: center;
+        }
+        .card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            width: 500px;
+            height: 300px;
+            padding: 25px;
+            margin: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .term {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .definition {
+            font-size: 1.2rem;
+            color: #555;
+            margin-top: 15px;
+            display: none; /* Hide the definition by default */
+        }
+        button {
+            font-size: 1rem;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background-color 0.2s;
+        }
+        #flip-btn {
+            background-color: #007aff;
+            color: white;
+        }
+        #next-btn {
+            background-color: #e5e5e5;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI Flashcard 🤖</h1>
+        <div class="card">
+            <div class="term">{{ term }}</div>
+
+            <div class="definition">{{ definition }}</div>
+        </div>
+        
+        <button id="flip-btn" onclick="flipCard()">Flip Card</button>
+        
+        <button id="next-btn" onclick="window.location.reload()">Next Card</button>
+    </div>
+
+    <script>
+        // This JavaScript function runs when you click the "Flip Card" button
+        function flipCard() {
+            // It finds the definition element and makes it visible
+            document.querySelector('.definition').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
