@@ -369,14 +369,14 @@ let flipAudio;
 
 function initAudio() {
   if (!flipAudio) {
-    flipAudio = new Audio("sounds/card-flip.wav");  // adjust path if needed
-    flipAudio.volume = 0.5;  // adjust volume
+    flipAudio = new Audio("{{ url_for('static', filename='sounds/card-flip.wav') }}");
+    flipAudio.volume = 0.6; // 
   }
 }
 
 function playFlipSound() {
   if (flipAudio) {
-    flipAudio.currentTime = 0;  // restart sound from beginning
+    flipAudio.currentTime = 0; 
     flipAudio.play();
   }
 }
