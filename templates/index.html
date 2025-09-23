@@ -1,359 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Flashcard Study Tool</title>
-<style>
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8f9fa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  margin: 0;
-  padding: 20px;
-  color: #333;
-}
-
-#welcome {
-  text-align: center;
-  background: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  max-width: 500px;
-  border: 1px solid #e9ecef;
-}
-
-#welcome h1 {
-  color: #495057;
-  margin-bottom: 20px;
-  font-size: 2.5rem;
-  font-weight: 600;
-}
-
-#card-container {
-  width: 90vw;
-  max-width: 600px;
-  height: 350px;
-  perspective: 1000px;
-  margin: 20px 0;
-  position: relative;
-}
-
-.card {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  border-radius: 10px;
-  cursor: pointer;
-  display: none;
-  transform-style: preserve-3d;
-}
-
-.card.active {
-  display: block;
-  animation: slideIn 0.5s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.card-inner {
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
-  transform-style: preserve-3d;
-  position: relative;
-}
-
-.card.flipped .card-inner {
-  transform: rotateY(180deg);
-}
-
-.card-front, .card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  backface-visibility: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  font-size: 1.4rem;
-  line-height: 1.6;
-  overflow-y: auto;
-  border: 1px solid #dee2e6;
-}
-
-.card-front {
-  background-color: #ffffff;
-  color: #333;
-}
-
-.card-back {
-  background-color: #f8f9fa;
-  color: #333;
-  transform: rotateY(180deg);
-}
-
-.card-front .term { 
-  font-weight: bold; 
-  font-size: 1.6rem;
-  color: #495057;
-}
-
-.card-back .definition {
-  font-size: 1.3rem;
-  color: #6c757d;
-}
-
-.progress {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: #e9ecef;
-  padding: 8px 15px;
-  border-radius: 5px;
-  font-size: 0.9rem;
-  color: #495057;
-  font-weight: 600;
-  z-index: 10;
-  border: 1px solid #dee2e6;
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-button {
-  padding: 12px 24px;
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  background-color: white;
-  color: #495057;
-}
-
-button:hover {
-  background-color: #f8f9fa;
-  border-color: #adb5bd;
-}
-
-button:active {
-  background-color: #e9ecef;
-}
-
-#start-btn, #restart-btn { 
-  background-color: #007bff;
-  color: white; 
-  border-color: #007bff;
-}
-
-#start-btn:hover, #restart-btn:hover { 
-  background-color: #0056b3;
-  border-color: #0056b3;
-}
-
-.nav-btn { 
-  background-color: #6c757d;
-  color: white; 
-  border-color: #6c757d;
-}
-
-.nav-btn:hover { 
-  background-color: #545b62;
-  border-color: #545b62;
-}
-
-.score-btn {
-  background-color: #28a745;
-  color: white;
-  border-color: #28a745;
-}
-
-.score-btn:hover {
-  background-color: #218838;
-  border-color: #218838;
-}
-
-.miss-btn {
-  background-color: #dc3545;
-  color: white;
-  border-color: #dc3545;
-}
-
-.miss-btn:hover {
-  background-color: #c82333;
-  border-color: #c82333;
-}
-
-.actions {
-  text-align: center;
-  margin-top: 20px;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.actions.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-#result {
-  text-align: center;
-  background: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  max-width: 500px;
-  display: none;
-  border: 1px solid #e9ecef;
-}
-
-#result h2 {
-  color: #495057;
-  margin-bottom: 20px;
-  font-size: 2rem;
-}
-
-#score {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-  line-height: 1.6;
-}
-
-.keyboard-hint {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 0.9rem;
-  color: #495057;
-  display: none;
-  border: 1px solid #dee2e6;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.keyboard-hint.show {
-  display: block;
-  animation: fadeIn 0.5s ease-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@media (max-width: 768px) {
-  #card-container {
-    width: 95vw;
-    height: 300px;
-  }
-  
-  .card-front .term {
-    font-size: 1.3rem;
-  }
-  
-  .card-back .definition {
-    font-size: 1.1rem;
-  }
-  
-  .controls {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  button {
-    width: 200px;
-  }
-}
-</style>
-</head>
-<body>
-
-<div id="welcome">
-  <h1>🧠 AI Flashcard Study Tool</h1>
-  <p>There are <strong>{{ deck_size }}</strong> cards in this deck.</p>
-  <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
-    Press Enter to Start. Use arrow keys to navigate, spacebar to flip cards.
-  </p>
-  <button id="start-btn">Start Session</button>
-  <script>
-    document.addEventListener("keydown", function(e) {
-      if (e.key === "Enter" && document.getElementById("welcome").style.display !== "none") {
-        document.getElementById("start-btn").click();
-      }
-    });
-  </script>
-</div>
-
-<div id="card-container">
-  {% for term, definition in cards %}
-  <div class="card">
-    <div class="progress"></div>
-    <div class="card-inner">
-      <div class="card-front">
-        <div class="term">{{ term }}</div>
-      </div>
-      <div class="card-back">
-        <div class="definition">{{ definition }}</div>
-      </div>
-    </div>
-  </div>
-  {% endfor %}
-</div>
-
-<div class="actions">
-  <button class="score-btn" onclick="markAnswer(true)">✓ Got it</button>
-  <button class="miss-btn" onclick="markAnswer(false)">✗ Missed</button>
-</div>
-
-<div class="controls">
-  <button class="nav-btn" onclick="prevCard()" id="prev-btn">← Previous</button>
-  <button class="nav-btn" onclick="flipCard()" id="flip-btn">Flip Card</button>
-  <button class="nav-btn" onclick="nextCard()" id="next-btn">Next →</button>
-</div>
-
-<div id="result">
-  <h2>🎉 Session Complete!</h2>
-  <div id="score"></div>
-  <button id="restart-btn" onclick="restart()">Play Again</button>
-</div>
-
-<div class="keyboard-hint">
-  <strong>Keyboard shortcuts:</strong> ← → to navigate, Space/Enter to flip, G for "got it", M for "missed"
-</div>
-
 <script>
 let currentCard = 0;
 let score = 0;
@@ -381,7 +25,6 @@ function playFlipSound() {
   }
 }
 
-
 // Start session
 document.getElementById("start-btn").onclick = () => {
   initAudio();
@@ -390,7 +33,7 @@ document.getElementById("start-btn").onclick = () => {
   keyboardHint.classList.add("show");
   sessionStarted = true;
   showCard(currentCard);
-  
+
   // Hide keyboard hint after 3 seconds
   setTimeout(() => {
     keyboardHint.classList.remove("show");
@@ -400,41 +43,37 @@ document.getElementById("start-btn").onclick = () => {
 // Show specific card
 function showCard(index) {
   if (!sessionStarted) return;
-  
+
   cards.forEach((card, i) => {
     card.classList.remove("active");
     card.classList.remove("flipped");
   });
-  
+
   if (index >= 0 && index < cards.length) {
     const card = cards[index];
     card.classList.add("active");
     card.querySelector(".progress").innerText = `${index + 1} / ${cards.length}`;
     actions.classList.remove("show");
-    
-    // Update navigation buttons
-    document.getElementById("prev-btn").disabled = index === 0;
-    document.getElementById("next-btn").disabled = index === cards.length - 1;
+    // Always show front side initially
+    card.classList.remove("flipped");
   }
 }
 
-// Flip current card
+// Flip current card (allows flipping back and forth)
 function flipCard() {
   if (!sessionStarted || currentCard >= cards.length) return;
-  
+
   const card = cards[currentCard];
-  const isFlipped = card.classList.contains("flipped");
-  
-  playFlipSound();
   card.classList.toggle("flipped");
-  
-  if (!isFlipped) {
-    setTimeout(() => {
-      actions.classList.add("show");
-    }, 400);
+
+  // Show actions only on the back
+  if (card.classList.contains("flipped")) {
+    actions.classList.add("show");
   } else {
     actions.classList.remove("show");
   }
+
+  playFlipSound();
 }
 
 // Navigation functions
@@ -459,13 +98,13 @@ function markAnswer(correct) {
   if (correct) {
     score++;
   }
-  
+
   // Visual feedback
   const button = event.target;
   const originalText = button.innerHTML;
   button.innerHTML = correct ? "✓ Correct!" : "✗ Try again!";
   button.style.transform = "scale(0.95)";
-  
+
   setTimeout(() => {
     button.innerHTML = originalText;
     button.style.transform = "scale(1)";
@@ -476,7 +115,7 @@ function markAnswer(correct) {
 // Keyboard controls
 document.addEventListener("keydown", (e) => {
   if (!sessionStarted) return;
-  
+
   switch(e.key) {
     case "ArrowLeft":
       e.preventDefault();
@@ -508,13 +147,11 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// Click to flip (only when showing front)
+// Click to flip (allows flipping front/back)
 cards.forEach(card => {
   card.addEventListener("click", (e) => {
     if (e.target.closest('.actions')) return;
-    if (!card.classList.contains("flipped")) {
-      flipCard();
-    }
+    flipCard();
   });
 });
 
@@ -524,10 +161,10 @@ function showResult() {
   document.getElementById("card-container").style.display = "none";
   controls.style.display = "none";
   actions.style.display = "none";
-  
+
   const percentage = Math.round((score / cards.length) * 100);
   let message = "";
-  
+
   if (percentage >= 90) {
     message = "🌟 Excellent! You're mastering this material!";
   } else if (percentage >= 70) {
@@ -537,13 +174,13 @@ function showResult() {
   } else {
     message = "💪 Keep studying! Practice makes perfect.";
   }
-  
+
   document.getElementById("score").innerHTML = `
     <div style="font-size: 2rem; margin: 20px 0;">${score} / ${cards.length}</div>
     <div style="font-size: 1.5rem; margin: 10px 0; color: #007bff;">${percentage}%</div>
     <div style="margin-top: 20px;">${message}</div>
   `;
-  
+
   result.style.display = "block";
 }
 
@@ -552,13 +189,13 @@ function restart() {
   currentCard = 0;
   score = 0;
   sessionStarted = false;
-  
+
   result.style.display = "none";
   document.getElementById("card-container").style.display = "block";
   welcome.style.display = "block";
   controls.style.display = "none";
   actions.classList.remove("show");
-  
+
   cards.forEach(card => {
     card.classList.remove("active", "flipped");
   });
@@ -567,6 +204,3 @@ function restart() {
 // Initialize
 showCard(0);
 </script>
-
-</body>
-</html>
