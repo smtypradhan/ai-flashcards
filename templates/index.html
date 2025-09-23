@@ -381,7 +381,6 @@ function playFlipSound() {
   }
 }
 
-
 // Start session
 document.getElementById("start-btn").onclick = () => {
   initAudio();
@@ -390,7 +389,7 @@ document.getElementById("start-btn").onclick = () => {
   keyboardHint.classList.add("show");
   sessionStarted = true;
   showCard(currentCard);
-  
+
   // Hide keyboard hint after 3 seconds
   setTimeout(() => {
     keyboardHint.classList.remove("show");
@@ -400,41 +399,37 @@ document.getElementById("start-btn").onclick = () => {
 // Show specific card
 function showCard(index) {
   if (!sessionStarted) return;
-  
+
   cards.forEach((card, i) => {
     card.classList.remove("active");
     card.classList.remove("flipped");
   });
-  
+
   if (index >= 0 && index < cards.length) {
     const card = cards[index];
     card.classList.add("active");
     card.querySelector(".progress").innerText = `${index + 1} / ${cards.length}`;
     actions.classList.remove("show");
-    
-    // Update navigation buttons
-    document.getElementById("prev-btn").disabled = index === 0;
-    document.getElementById("next-btn").disabled = index === cards.length - 1;
+    // Always show front side initially
+    card.classList.remove("flipped");
   }
 }
 
-// Flip current card
+// Flip current card (allows flipping back and forth)
 function flipCard() {
   if (!sessionStarted || currentCard >= cards.length) return;
-  
+
   const card = cards[currentCard];
-  const isFlipped = card.classList.contains("flipped");
-  
-  playFlipSound();
   card.classList.toggle("flipped");
-  
-  if (!isFlipped) {
-    setTimeout(() => {
-      actions.classList.add("show");
-    }, 400);
+
+  // Show actions only on the back
+  if (card.classList.contains("flipped")) {
+    actions.classList.add("show");
   } else {
     actions.classList.remove("show");
   }
+
+  playFlipSound();
 }
 
 // Navigation functions
@@ -459,13 +454,13 @@ function markAnswer(correct) {
   if (correct) {
     score++;
   }
-  
+
   // Visual feedback
   const button = event.target;
   const originalText = button.innerHTML;
   button.innerHTML = correct ? "✓ Correct!" : "✗ Try again!";
   button.style.transform = "scale(0.95)";
-  
+
   setTimeout(() => {
     button.innerHTML = originalText;
     button.style.transform = "scale(1)";
@@ -476,7 +471,7 @@ function markAnswer(correct) {
 // Keyboard controls
 document.addEventListener("keydown", (e) => {
   if (!sessionStarted) return;
-  
+
   switch(e.key) {
     case "ArrowLeft":
       e.preventDefault();
@@ -508,13 +503,11 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// Click to flip (only when showing front)
+// Click to flip (allows flipping front/back)
 cards.forEach(card => {
   card.addEventListener("click", (e) => {
     if (e.target.closest('.actions')) return;
-    if (!card.classList.contains("flipped")) {
-      flipCard();
-    }
+    flipCard();
   });
 });
 
@@ -524,10 +517,10 @@ function showResult() {
   document.getElementById("card-container").style.display = "none";
   controls.style.display = "none";
   actions.style.display = "none";
-  
+
   const percentage = Math.round((score / cards.length) * 100);
   let message = "";
-  
+
   if (percentage >= 90) {
     message = "🌟 Excellent! You're mastering this material!";
   } else if (percentage >= 70) {
@@ -537,13 +530,13 @@ function showResult() {
   } else {
     message = "💪 Keep studying! Practice makes perfect.";
   }
-  
+
   document.getElementById("score").innerHTML = `
     <div style="font-size: 2rem; margin: 20px 0;">${score} / ${cards.length}</div>
     <div style="font-size: 1.5rem; margin: 10px 0; color: #007bff;">${percentage}%</div>
     <div style="margin-top: 20px;">${message}</div>
   `;
-  
+
   result.style.display = "block";
 }
 
@@ -552,13 +545,13 @@ function restart() {
   currentCard = 0;
   score = 0;
   sessionStarted = false;
-  
+
   result.style.display = "none";
   document.getElementById("card-container").style.display = "block";
   welcome.style.display = "block";
   controls.style.display = "none";
   actions.classList.remove("show");
-  
+
   cards.forEach(card => {
     card.classList.remove("active", "flipped");
   });
