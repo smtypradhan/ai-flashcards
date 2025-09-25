@@ -1,3 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Flashcard Study Tool</title>
+<style>
+:root {
+  --main-font: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --button-padding: 12px 24px;
+  --button-margin: 10px;
+  --button-radius: 5px;
+  --controls-gap: 15px;
+  --actions-gap: 15px;
+}
+* {
+  box-sizing: border-box;
+  font-family: var(--main-font);
+}
+body {
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  color: #333;
+}
+
+#welcome {
+  text-align: center;
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  max-width: 500px;
+  border: 1px solid #e9ecef;
+}
+
+#welcome h1 {
+  color: #495057;
+  margin-bottom: 20px;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+#card-container {
+  width: 90vw;
+  max-width: 600px;
+  height: 350px;
+  perspective: 1000px;
+  margin: 20px 0;
+  position: relative;
+}
+
+.card {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border-radius: 10px;
+  cursor: pointer;
+  display: none;
+  transform-style: preserve-3d;
+}
+
+.card.active {
+  display: block;
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-inner {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  font-size: 1.4rem;
+  line-height: 1.6;
+  overflow-y: auto;
+  border: 1px solid #dee2e6;
+}
+
+.card-front {
+  background-color: #ffffff;
+  color: #333;
+}
+
+.card-back {
+  background-color: #f8f9fa;
+  color: #333;
+  transform: rotateY(180deg);
+}
+
+.card-front .term { 
+  font-weight: bold; 
+  font-size: 1.6rem;
+  color: #495057;
+}
+
+.card-back .definition {
+  font-size: 1.3rem;
+  color: #6c757d;
+}
+
+.progress {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #e9ecef;
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  color: #495057;
+  font-weight: 600;
+  z-index: 10;
+  border: 1px solid #dee2e6;
+}
+
+/* New layout for actions and controls */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--actions-gap);
+  margin-top: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.actions.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--controls-gap);
+  margin-top: 20px;
+}
+
+button {
+  padding: var(--button-padding);
+  border: 1px solid #dee2e6;
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  margin: var(--button-margin) 0;
+  transition: all 0.2s ease;
+  background-color: white;
+  color: #495057;
+  width: 220px;
+  box-sizing: border-box;
+}
+
+button:hover {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+button:active {
+  background-color: #e9ecef;
+}
+
+#start-btn, #restart-btn { 
+  background-color: #007bff;
+  color: white; 
+  border-color: #007bff;
+}
+
+#start-btn:hover, #restart-btn:hover { 
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.nav-btn { 
+  background-color: #6c757d;
+  color: white; 
+  border-color: #6c757d;
+}
+
+.nav-btn:hover { 
+  background-color: #545b62;
+  border-color: #545b62;
+}
+
+.score-btn {
+  background-color: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.score-btn:hover {
+  background-color: #218838;
+  border-color: #218838;
+}
+
+.miss-btn {
+  background-color: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.miss-btn:hover {
+  background-color: #c82333;
+  border-color: #c82333;
+}
+
+#result {
+  text-align: center;
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  max-width: 500px;
+  display: none;
+  border: 1px solid #e9ecef;
+}
+
+#result h2 {
+  color: #495057;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+#score {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.keyboard-hint {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  color: #495057;
+  display: none;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.keyboard-hint.show {
+  display: block;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  #card-container {
+    width: 95vw;
+    height: 300px;
+  }
+  .card-front .term {
+    font-size: 1.3rem;
+  }
+  .card-back .definition {
+    font-size: 1.1rem;
+  }
+  .controls {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--controls-gap);
+  }
+  button {
+    width: 200px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="welcome">
+  <h1>🧠 AI Flashcard Study Tool</h1>
+  <p>There are <strong>{{ deck_size }}</strong> cards in this deck.</p>
+  <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
+    Press Enter to Start. Use arrow keys to navigate, spacebar to flip cards.
+  </p>
+  <button id="start-btn">Start Session</button>
+  <script>
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && document.getElementById("welcome").style.display !== "none") {
+        document.getElementById("start-btn").click();
+      }
+    });
+  </script>
+</div>
+
+<div id="card-container">
+  {% for term, definition in cards %}
+  <div class="card">
+    <div class="progress"></div>
+    <div class="card-inner">
+      <div class="card-front">
+        <div class="term">{{ term }}</div>
+      </div>
+      <div class="card-back">
+        <div class="definition">{{ definition }}</div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Actions at top: Correct / Missed -->
+<div class="actions">
+  <button class="score-btn" onclick="markAnswer(true)">✓ Correct</button>
+  <button class="miss-btn" onclick="markAnswer(false)">✗ Missed</button>
+</div>
+
+<!-- Controls vertical list -->
+<div class="controls">
+  <button class="nav-btn" onclick="prevCard()" id="prev-btn">← Previous</button>
+  <button class="nav-btn" onclick="flipCard()" id="flip-btn">Flip Card</button>
+  <button class="nav-btn" onclick="nextCard()" id="next-btn">Next →</button>
+</div>
+
+<div id="result">
+  <h2>🎉 Session Complete!</h2>
+  <div id="score"></div>
+  <button id="restart-btn" onclick="restart()">Play Again</button>
+</div>
+
+<div class="keyboard-hint">
+  <strong>Keyboard shortcuts:</strong> ← → to navigate, Space/Enter to flip, G for "correct", M for "missed"
+</div>
+
 <script>
 let currentCard = 0;
 let score = 0;
@@ -13,7 +381,7 @@ let flipAudio;
 
 function initAudio() {
   if (!flipAudio) {
-    flipAudio = new Audio("sounds/card-flip.wav");  // adjust path if needed
+    flipAudio = new Audio("static/sounds/card-flip.wav");  // updated path
     flipAudio.volume = 0.5;  // adjust volume
   }
 }
@@ -204,3 +572,6 @@ function restart() {
 // Initialize
 showCard(0);
 </script>
+
+</body>
+</html>
