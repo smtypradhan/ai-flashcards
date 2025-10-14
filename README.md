@@ -22,7 +22,7 @@ for deploying the app, as well as Visual Studio for the build. Gemini AI provide
 
 <!-- App screenshot -->
 <p align="center">
-	<img src="static/images/ai-flashcards-screenshot.png" alt="AI Flashcards screenshot" width="700">
+	<img src="static/images/ai-flashcard-screenshot.png" alt="AI Flashcards screenshot" width="700">
 </p>
 
 
