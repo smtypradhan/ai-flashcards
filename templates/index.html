@@ -314,6 +314,19 @@ button:active {
 <div id="welcome">
   <h1>🧠 AI Flashcard Study Tool</h1>
   <p>There are <strong>{{ deck_size }}</strong> cards in this deck.</p>
+  {% if decks %}
+  <form method="get" style="margin-top: 10px;">
+    <label for="deck">Select deck:</label>
+    <select id="deck" name="deck" onchange="this.form.submit()">
+      {% for d in decks %}
+      <option value="{{ d }}" {% if d == selected_deck %}selected{% endif %}>{{ d.replace('_', ' ') }}</option>
+      {% endfor %}
+    </select>
+    <noscript>
+      <button type="submit">Load</button>
+    </noscript>
+  </form>
+  {% endif %}
   <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
     Press Enter to Start. Use arrow keys to navigate, spacebar to flip cards.
   </p>

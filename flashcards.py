@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import random
 import csv
 import os
@@ -39,16 +39,36 @@ def load_flashcards(csv_path: str):
 # FLASHCARD PROGRAM
 # -----------------------------------------------------------------
 
-cards_list = load_flashcards(CSV_PATH)
+def list_decks(data_dir: str):
+    """Return a sorted list of available deck names (without .csv extension)."""
+    try:
+        files = [f for f in os.listdir(data_dir) if f.lower().endswith('.csv')]
+        decks = sorted(os.path.splitext(f)[0] for f in files)
+        return decks
+    except FileNotFoundError:
+        return []
 
 @app.route("/")
 def index():
-    cards = list(cards_list)
+    decks = list_decks(DATA_DIR)
+    default_deck = 'ai_flashcards' if 'ai_flashcards' in decks else (decks[0] if decks else None)
+    selected_deck = request.args.get('deck') or default_deck
+    if decks and selected_deck not in decks:
+        selected_deck = default_deck
+
+    # Resolve path and load
+    if selected_deck:
+        csv_path = os.path.join(DATA_DIR, f"{selected_deck}.csv")
+    else:
+        csv_path = CSV_PATH
+    cards = load_flashcards(csv_path)
     random.shuffle(cards)
     return render_template(
         "index.html",
         cards=cards,
-        deck_size=len(cards)  # 👈 add this line
+        deck_size=len(cards),
+        decks=decks,
+        selected_deck=selected_deck
     )
 
 

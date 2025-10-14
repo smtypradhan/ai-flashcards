@@ -25,6 +25,7 @@ https://ai-flashcards-smritipradhan.vercel.app/
 
 Data source
 
-- The flashcards are stored in a CSV file at `data/ai_flashcards.csv` with headers `question,answer`.
-- To edit or add cards, modify that CSV. Each row becomes one card.
-- The app loads this file at startup and shuffles the cards for each session.
+- Flashcards live in CSV files under the `data/` folder with headers `question,answer`.
+- The default deck is `data/ai_flashcards.csv`. You can add more decks by dropping additional `.csv` files into `data/` (e.g., `data/ml_basics.csv`).
+- Select a deck from the dropdown on the homepage, or via URL query: `/?deck=ml_basics`.
+- To edit or add cards, modify the CSV—each row becomes one card. The app shuffles cards each session.
