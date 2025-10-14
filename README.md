@@ -22,3 +22,9 @@ for deploying the app, as well as Visual Studio for the build. Gemini AI provide
 
 View the Program here:
 https://ai-flashcards-smritipradhan.vercel.app/
+
+Data source
+
+- The flashcards are stored in a CSV file at `data/ai_flashcards.csv` with headers `question,answer`.
+- To edit or add cards, modify that CSV. Each row becomes one card.
+- The app loads this file at startup and shuffles the cards for each session.
