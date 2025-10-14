@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Flask app",
+			"type": "shell",
+			"command": "/Users/smtypradhan/Documents/GitHub/ai-flashcards/.venv/bin/python",
+			"args": [
+				"/Users/smtypradhan/Documents/GitHub/ai-flashcards/flashcards.py"
+			],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

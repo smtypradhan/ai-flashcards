@@ -13,7 +13,8 @@
   {% if selected_deck %}
     {% set selected_name = (display_names[selected_deck] if display_names and selected_deck in display_names else selected_deck.replace('_', ' ')) %}
     <p><strong>{{ selected_name }}</strong> has <strong>{{ deck_size }}</strong> cards.</p>
-  {% else %}
+  {% endif %}
+  {% if not selected_deck %}
     <p>There are <strong>{{ deck_size }}</strong> cards in this deck.</p>
   {% endif %}
   {% if decks %}
@@ -38,6 +39,9 @@
 </div>
 
 <div id="card-container">
+  <!-- Left Arrow -->
+  <button class="nav-arrow left" onclick="prevCard()" aria-label="Previous card">‹</button>
+  
   {% for term, definition in cards %}
   <div class="card">
     <div class="progress"></div>
@@ -51,12 +55,21 @@
     </div>
   </div>
   {% endfor %}
+  
+  <!-- Right Arrow -->
+  <button class="nav-arrow right" onclick="nextCard()" aria-label="Next card">›</button>
 </div>
 
-<!-- Actions at top: Correct / Missed -->
-<div class="actions">
-  <button class="score-btn" onclick="markAnswer(true)">✓ Correct</button>
-  <button class="miss-btn" onclick="markAnswer(false)">✗ Missed</button>
+<!-- Actions: Show from start, Missed on left, Correct on right -->
+<div class="actions show">
+  <button class="miss-btn" onclick="markAnswer(false)">
+    ✗ Missed
+    <span class="miss-counter">0</span>
+  </button>
+  <button class="score-btn" onclick="markAnswer(true)">
+    ✓ Correct
+    <span class="score-counter">0</span>
+  </button>
 </div>
 
 <!-- Controls: keep Flip and add Shuffle -->

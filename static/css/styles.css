@@ -43,6 +43,7 @@ body {
 .welcome-instructions { margin-top: 20px; font-size: 0.9rem; color: #666; }
 
 #card-container {
+  display: none; /* hidden on welcome screen */
   width: 90vw;
   max-width: 600px;
   height: 350px;
@@ -56,23 +57,49 @@ body {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
+  border: 2px solid #dee2e6;
   border-radius: 50%;
-  border: 1px solid #dee2e6;
-  background: white;
+  background: #ffffff;
   color: #495057;
+  font-size: 1.8rem;
+  font-weight: 400;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
   z-index: 20;
 }
-.nav-arrow:hover { background-color: #f8f9fa; }
-.nav-arrow.left { left: -22px; }
-.nav-arrow.right { right: -22px; }
+
+.nav-arrow:hover {
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.nav-arrow:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.nav-arrow.left {
+  left: -30px;
+}
+
+.nav-arrow.right {
+  right: -30px;
+}
+
+@media (max-width: 768px) {
+  .nav-arrow.left {
+    left: 10px;
+  }
+  .nav-arrow.right {
+    right: 10px;
+  }
+}
 
 .card {
   width: 100%;
@@ -145,18 +172,22 @@ body {
 /* Actions */
 .actions {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   gap: var(--actions-gap);
   margin-top: 20px;
-  opacity: 0;
-  visibility: hidden;
+  max-width: 400px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 1;
+  visibility: visible;
   transition: all 0.3s ease;
 }
 .actions.show { opacity: 1; visibility: visible; }
 
 /* Controls */
 .controls {
-  display: flex;
+  display: none; /* hidden on welcome screen */
   flex-direction: column;
   align-items: center;
   gap: var(--controls-gap);
@@ -186,11 +217,39 @@ button:active { background-color: #e9ecef; }
 .nav-btn { background-color: #6c757d; color: white; border-color: #6c757d; }
 .nav-btn:hover { background-color: #545b62; border-color: #545b62; }
 
-.score-btn { background-color: #28a745; color: white; border-color: #28a745; }
+.score-btn { 
+  background-color: #28a745; 
+  color: white; 
+  border-color: #28a745; 
+  position: relative;
+}
 .score-btn:hover { background-color: #218838; border-color: #218838; }
 
-.miss-btn { background-color: #dc3545; color: white; border-color: #dc3545; }
+.miss-btn { 
+  background-color: #dc3545; 
+  color: white; 
+  border-color: #dc3545;
+  position: relative;
+}
 .miss-btn:hover { background-color: #c82333; border-color: #c82333; }
+
+.score-counter, .miss-counter {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ffffff;
+  color: #333;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+}
 
 #result {
   text-align: center;

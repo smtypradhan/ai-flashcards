@@ -1,5 +1,6 @@
 let currentCard = 0;
 let score = 0;
+let missedCount = 0;
 let sessionStarted = false;
 let cards = document.querySelectorAll('.card');
 const welcome = document.getElementById('welcome');
@@ -29,6 +30,9 @@ function playFlipSound() {
 document.getElementById('start-btn').onclick = () => {
   initAudio();
   welcome.style.display = 'none';
+  // reveal study UI
+  document.getElementById('card-container').style.display = 'block';
+  document.querySelectorAll('.nav-arrow').forEach(arrow => arrow.style.display = 'flex');
   controls.style.display = 'flex';
   keyboardHint.classList.add('show');
   sessionStarted = true;
@@ -47,7 +51,8 @@ function showCard(index) {
     const card = cards[index];
     card.classList.add('active');
     card.querySelector('.progress').innerText = `${index + 1} / ${cards.length}`;
-    actions.classList.remove('show');
+    // Actions are always shown now
+    actions.classList.add('show');
     card.classList.remove('flipped');
   }
 }
@@ -57,11 +62,7 @@ function flipCard() {
   if (!sessionStarted || currentCard >= cards.length) return;
   const card = cards[currentCard];
   card.classList.toggle('flipped');
-  if (card.classList.contains('flipped')) {
-    actions.classList.add('show');
-  } else {
-    actions.classList.remove('show');
-  }
+  // Actions are always shown now, no need to toggle
   playFlipSound();
 }
 
@@ -83,16 +84,34 @@ function nextCard() {
 
 // Scoring
 function markAnswer(correct) {
-  if (correct) score++;
-  const button = event.target;
+  if (correct) {
+    score++;
+    updateCounter('.score-counter', score);
+  } else {
+    missedCount++;
+    updateCounter('.miss-counter', missedCount);
+  }
+  
+  const button = event.target.closest('button');
   const originalText = button.innerHTML;
+  const counterSpan = button.querySelector('.score-counter, .miss-counter');
+  const originalCounter = counterSpan ? counterSpan.outerHTML : '';
+  
   button.innerHTML = correct ? '✓ Correct!' : '✗ Try again!';
   button.style.transform = 'scale(0.95)';
+  
   setTimeout(() => {
     button.innerHTML = originalText;
     button.style.transform = 'scale(1)';
     nextCard();
   }, 500);
+}
+
+function updateCounter(selector, count) {
+  const counter = document.querySelector(selector);
+  if (counter) {
+    counter.textContent = count;
+  }
 }
 
 // Keyboard controls
@@ -149,11 +168,16 @@ function showResult() {
 function restart() {
   currentCard = 0;
   score = 0;
+  missedCount = 0;
   sessionStarted = false;
   result.style.display = 'none';
-  document.getElementById('card-container').style.display = 'block';
-  welcome.style.display = 'block';
+  // Reset counters
+  updateCounter('.score-counter', 0);
+  updateCounter('.miss-counter', 0);
+  // hide study UI and restore welcome
+  document.getElementById('card-container').style.display = 'none';
   controls.style.display = 'none';
+  welcome.style.display = 'block';
   actions.classList.remove('show');
   cards.forEach(c => c.classList.remove('active', 'flipped'));
 }
@@ -161,20 +185,7 @@ function restart() {
 // Initialize
 showCard(0);
 
-// Add arrows next to the card container
-const cardContainer = document.getElementById('card-container');
-const leftArrow = document.createElement('button');
-leftArrow.className = 'nav-arrow left';
-leftArrow.setAttribute('aria-label', 'Previous card');
-leftArrow.innerHTML = '&lt;';
-leftArrow.onclick = () => prevCard();
-const rightArrow = document.createElement('button');
-rightArrow.className = 'nav-arrow right';
-rightArrow.setAttribute('aria-label', 'Next card');
-rightArrow.innerHTML = '&gt;';
-rightArrow.onclick = () => nextCard();
-cardContainer.appendChild(leftArrow);
-cardContainer.appendChild(rightArrow);
+// Session utilities
 
 function shuffleDeck() {
   const container = document.getElementById('card-container');
@@ -183,11 +194,14 @@ function shuffleDeck() {
     const j = Math.floor(Math.random() * (i + 1));
     [cardNodes[i], cardNodes[j]] = [cardNodes[j], cardNodes[i]];
   }
-  const beforeNode = leftArrow;
-  cardNodes.forEach(node => container.insertBefore(node, beforeNode));
+   cardNodes.forEach(node => container.appendChild(node));
   cards = document.querySelectorAll('.card');
   currentCard = 0;
   score = 0;
+  missedCount = 0;
+  // Reset counters
+  updateCounter('.score-counter', 0);
+  updateCounter('.miss-counter', 0);
   actions.classList.remove('show');
   cards.forEach(c => c.classList.remove('active', 'flipped'));
   if (sessionStarted) showCard(0);
